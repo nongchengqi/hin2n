@@ -150,7 +150,7 @@ public class N2NService extends VpnService {
             manager.createNotificationChannel(notificationChannel);
 
             Intent i = new Intent(this, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, 0);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_IMMUTABLE);
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this,CHANNEL_ONE_ID)
                     .setTicker("Nature")
                     .setSmallIcon(R.mipmap.ic_launcher)
