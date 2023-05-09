@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.orhanobut.logger.Logger;
-import com.tencent.bugly.beta.Beta;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
@@ -51,7 +50,6 @@ import wang.switchy.hin2n.template.BaseTemplate;
 import wang.switchy.hin2n.template.CommonTitleTemplate;
 import wang.switchy.hin2n.tool.IOUtils;
 import wang.switchy.hin2n.tool.N2nTools;
-import wang.switchy.hin2n.tool.ShareUtils;
 import wang.switchy.hin2n.tool.ThreadUtils;
 
 public class MainActivity extends BaseActivity {
@@ -233,7 +231,7 @@ public class MainActivity extends BaseActivity {
                             .onGranted(new Action<List<String>>() {
                                 @Override
                                 public void onAction(List<String> data) {
-                                    ShareUtils.doOnClickShareItem(MainActivity.this);
+
                                 }
                             })
                             .onDenied(new Action<List<String>>() {
@@ -243,7 +241,7 @@ public class MainActivity extends BaseActivity {
                                 }
                             }).start();
                 } else {
-                    ShareUtils.doOnClickShareItem(MainActivity.this);
+
                 }
 
             }
@@ -254,7 +252,7 @@ public class MainActivity extends BaseActivity {
         contactItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ShareUtils.joinQQGroup(MainActivity.this);
+
             }
         });
 
@@ -272,7 +270,7 @@ public class MainActivity extends BaseActivity {
         checkUpdateItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Beta.checkUpgrade();
+
             }
         });
 
