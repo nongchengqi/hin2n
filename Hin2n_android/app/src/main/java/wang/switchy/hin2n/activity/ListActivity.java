@@ -265,9 +265,12 @@ public class ListActivity extends BaseActivity {
                             Query<N2NSettingModel> query = ObjectBox.getSettingBox().query(N2NSettingModel_.name.equal(copyName)).build();
                             i++;
                             settingModel = query.findFirst();
-                            copyName = copyNameTmp + "(" + i + ")";
                             query.close();
-                        } while (settingModel != null);
+                            if (settingModel == null){
+                                break;
+                            }
+                            copyName = copyNameTmp + "(" + i + ")";
+                        } while (true);
 
                         N2NSettingModel n2NSettingModel = new N2NSettingModel(null, n2NSettingModelCopy.getVersion(), copyName, n2NSettingModelCopy.getIpMode(), n2NSettingModelCopy.getIp(), n2NSettingModelCopy.getNetmask(), n2NSettingModelCopy.getCommunity(),
                                 n2NSettingModelCopy.getPassword(), n2NSettingModelCopy.getDevDesc(), n2NSettingModelCopy.getSuperNode(), n2NSettingModelCopy.getMoreSettings(), n2NSettingModelCopy.getSuperNodeBackup(),
