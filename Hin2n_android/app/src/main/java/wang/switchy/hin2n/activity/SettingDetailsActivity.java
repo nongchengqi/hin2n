@@ -27,6 +27,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import io.objectbox.query.Query;
 import wang.switchy.hin2n.Hin2nApplication;
 import wang.switchy.hin2n.R;
 import wang.switchy.hin2n.event.ErrorEvent;
@@ -35,9 +36,10 @@ import wang.switchy.hin2n.event.StopEvent;
 import wang.switchy.hin2n.model.EdgeCmd;
 import wang.switchy.hin2n.model.EdgeStatus;
 import wang.switchy.hin2n.model.N2NSettingInfo;
+import wang.switchy.hin2n.receiver.ObjectBox;
 import wang.switchy.hin2n.service.N2NService;
-import wang.switchy.hin2n.storage.db.base.N2NSettingModelDao;
-import wang.switchy.hin2n.storage.db.base.model.N2NSettingModel;
+import wang.switchy.hin2n.storage.model.N2NSettingModel;
+import wang.switchy.hin2n.storage.model.N2NSettingModel_;
 import wang.switchy.hin2n.template.BaseTemplate;
 import wang.switchy.hin2n.template.CommonTitleTemplate;
 
@@ -293,7 +295,7 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
             // 从数据库读取存储
             ((CommonTitleTemplate) mTemplate).setTitleText(R.string.title_update_setting);
             mSaveId = intent.getLongExtra("saveId", 0);
-            mN2NSettingModel = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao().load(mSaveId);
+            mN2NSettingModel = ObjectBox.getSettingBox().get(mSaveId);
             mSettingName.getEditText().setText(mN2NSettingModel.getName());
             switch (mN2NSettingModel.getVersion()) {
                 case 0:
@@ -474,19 +476,22 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                     return;
                 }
 
-                N2NSettingModelDao n2NSettingModelDao = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao();
                 String settingName = mSettingName.getEditText().getText().toString();
                 String setingNameTmp = settingName;//原始字符串
                 int i = 0;
-                while (n2NSettingModelDao.queryBuilder().where(N2NSettingModelDao.Properties.Name.eq(settingName)).unique() != null) {
+                Query<N2NSettingModel> query0 = ObjectBox.getSettingBox().query(N2NSettingModel_.name.equal(settingName)).build();
+                while (query0.findFirst() != null) {
                     i++;
                     settingName = setingNameTmp + "(" + i + ")";
                 }
+                query0.close();
 
                 boolean hasSelected = false;
-                if (n2NSettingModelDao.queryBuilder().where(N2NSettingModelDao.Properties.IsSelcected.eq(true)).unique() != null) {
+                Query<N2NSettingModel> query = ObjectBox.getSettingBox().query().equal(N2NSettingModel_.isSelcected,true).build();
+                if (query.findFirst() != null) {
                     hasSelected = true;
                 }
+                query.close();
 
                 mN2NSettingModel = new N2NSettingModel(null, getN2nVersion(), settingName, mGetIpFromSupernodeCheckBox.isChecked() ? 1 : 0,
                         mIpAddressTIL.getEditText().getText().toString(), mNetMaskTIL.getEditText().getText().toString(),
@@ -503,12 +508,14 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                         mDnsServer.getEditText().getText().toString(),
                         mEncryptionMode.getSelectedItem().toString(),
                         mHeaderEncCheckBox.isChecked());
-                n2NSettingModelDao.insert(mN2NSettingModel);
+                ObjectBox.getSettingBox().put(mN2NSettingModel);
 
                 if (!hasSelected) {
-                    mN2NSettingModel = n2NSettingModelDao.queryBuilder().where(N2NSettingModelDao.Properties.IsSelcected.eq(true)).unique();
+                    Query<N2NSettingModel> query2 = ObjectBox.getSettingBox().query().equal(N2NSettingModel_.isSelcected,true).build();
+                    mN2NSettingModel = query2.findFirst();
                     mHin2nEdit.putLong("current_setting_id", mN2NSettingModel.getId());
                     mHin2nEdit.commit();
+                    query2.close();
                 }
 
                 new SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
@@ -525,12 +532,12 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                 if (!checkValues()) {
                     return;
                 }
-
-                N2NSettingModelDao n2NSettingModelDao1 = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao();
                 String settingName1 = mSettingName.getEditText().getText().toString();
                 String setingNameTmp1 = settingName1;//原始字符串
                 int i1 = 0;
-                N2NSettingModel n2NSettingModelTmp = n2NSettingModelDao1.queryBuilder().where(N2NSettingModelDao.Properties.Name.eq(settingName1)).unique();
+                Query<N2NSettingModel> query3 = ObjectBox.getSettingBox().query(N2NSettingModel_.name.equal(settingName1)).build();
+                N2NSettingModel n2NSettingModelTmp = query3.findFirst();
+                query3.close();
                 while (n2NSettingModelTmp != null) {
                     if (n2NSettingModelTmp.getId() == mSaveId) {
                         break;
@@ -538,7 +545,10 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
 
                     i1++;
                     settingName1 = setingNameTmp1 + "(" + i1 + ")";
-                    n2NSettingModelTmp = n2NSettingModelDao1.queryBuilder().where(N2NSettingModelDao.Properties.Name.eq(settingName1)).unique();
+                    Query<N2NSettingModel> query4 = ObjectBox.getSettingBox().query(N2NSettingModel_.name.equal(settingName1)).build();
+
+                    n2NSettingModelTmp = query4.findFirst();
+                    query4.close();
                 }
 
                 mN2NSettingModel = new N2NSettingModel(mSaveId, getN2nVersion(), settingName1, mGetIpFromSupernodeCheckBox.isChecked() ? 1 : 0,
@@ -556,7 +566,7 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                         mDnsServer.getEditText().getText().toString(),
                         mEncryptionMode.getSelectedItem().toString(),
                         mHeaderEncCheckBox.isChecked());
-                n2NSettingModelDao1.update(mN2NSettingModel);
+                ObjectBox.getSettingBox().put(mN2NSettingModel);
 
                 if (N2NService.INSTANCE != null &&
                         N2NService.INSTANCE.getCurrentStatus() != EdgeStatus.RunningStatus.DISCONNECT &&

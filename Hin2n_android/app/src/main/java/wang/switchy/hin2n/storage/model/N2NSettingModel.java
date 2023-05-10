@@ -1,19 +1,12 @@
-package wang.switchy.hin2n.storage.db.base.model;
+package wang.switchy.hin2n.storage.model;
 
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.annotation.Id;
 
-/**
- * Created by janiszhang on 2018/5/4.
- */
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
 
-@Entity(
-        nameInDb = "N2NSettingList"//表名
-)
-public class N2NSettingModel /*implements Parcelable*/ {
-
-    @Id(autoincrement = true)
+@Entity
+public class N2NSettingModel {
+    @Id
     Long id;
     int version;
     String name;
@@ -70,9 +63,13 @@ public class N2NSettingModel /*implements Parcelable*/ {
         this.community = community;
     }
 
-    public int getIpMode() { return this.ipMode; }
+    public int getIpMode() {
+        return this.ipMode;
+    }
 
-    public void setIpMode(int ipMode) { this.ipMode = ipMode; }
+    public void setIpMode(int ipMode) {
+        this.ipMode = ipMode;
+    }
 
     public String getNetmask() {
         return this.netmask;
@@ -90,9 +87,13 @@ public class N2NSettingModel /*implements Parcelable*/ {
         this.ip = ip;
     }
 
-    public String getDevDesc() { return this.devDesc; }
+    public String getDevDesc() {
+        return this.devDesc;
+    }
 
-    public void setDevDesc(String devDesc) { this.devDesc = devDesc; }
+    public void setDevDesc(String devDesc) {
+        this.devDesc = devDesc;
+    }
 
     public Long getId() {
         return this.id;
@@ -234,7 +235,9 @@ public class N2NSettingModel /*implements Parcelable*/ {
         this.dnsServer = dnsServer;
     }
 
-    public void setEncryptionMode(String mode) { this.encryptionMode = mode; }
+    public void setEncryptionMode(String mode) {
+        this.encryptionMode = mode;
+    }
 
     public boolean getHeaderEnc() {
         return this.headerEnc;
@@ -244,11 +247,10 @@ public class N2NSettingModel /*implements Parcelable*/ {
         this.headerEnc = headerEnc;
     }
 
-    @Generated(hash = 1352638944)
-    public N2NSettingModel(Long id, int version, String name, int ipMode, String ip, String netmask, String community, String password, String devDesc,
-            String superNode, boolean moreSettings, String superNodeBackup, String macAddr, int mtu, String localIP, int holePunchInterval,
-            boolean resoveSupernodeIP, int localPort, boolean allowRouting, boolean dropMuticast, boolean useHttpTunnel, int traceLevel,
-            boolean isSelcected, String gatewayIp, String dnsServer, String encryptionMode, boolean headerEnc) {
+    public N2NSettingModel() {
+    }
+
+    public N2NSettingModel(Long id, int version, String name, int ipMode, String ip, String netmask, String community, String password, String devDesc, String superNode, boolean moreSettings, String superNodeBackup, String macAddr, int mtu, String localIP, int holePunchInterval, boolean resoveSupernodeIP, int localPort, boolean allowRouting, boolean dropMuticast, boolean useHttpTunnel, int traceLevel, boolean isSelcected, String gatewayIp, String dnsServer, String encryptionMode, boolean headerEnc) {
         this.id = id;
         this.version = version;
         this.name = name;
@@ -276,10 +278,6 @@ public class N2NSettingModel /*implements Parcelable*/ {
         this.dnsServer = dnsServer;
         this.encryptionMode = encryptionMode;
         this.headerEnc = headerEnc;
-    }
-
-    @Generated(hash = 998225630)
-    public N2NSettingModel() {
     }
 
     public boolean getMoreSettings() {

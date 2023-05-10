@@ -44,8 +44,9 @@ import wang.switchy.hin2n.event.StopEvent;
 import wang.switchy.hin2n.event.SupernodeDisconnectEvent;
 import wang.switchy.hin2n.model.EdgeStatus;
 import wang.switchy.hin2n.model.N2NSettingInfo;
+import wang.switchy.hin2n.receiver.ObjectBox;
 import wang.switchy.hin2n.service.N2NService;
-import wang.switchy.hin2n.storage.db.base.model.N2NSettingModel;
+import wang.switchy.hin2n.storage.model.N2NSettingModel;
 import wang.switchy.hin2n.template.BaseTemplate;
 import wang.switchy.hin2n.template.CommonTitleTemplate;
 import wang.switchy.hin2n.tool.IOUtils;
@@ -252,7 +253,7 @@ public class MainActivity extends BaseActivity {
         contactItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                startActivity(new Intent(MainActivity.this, wang.switchy.hin2n.compose.ComposeActivity.class));
             }
         });
 
@@ -335,7 +336,7 @@ public class MainActivity extends BaseActivity {
 
         Long currentSettingId = n2nSp.getLong("current_setting_id", -1);
         if (currentSettingId != -1) {
-            mCurrentSettingInfo = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao().load((long) currentSettingId);
+            mCurrentSettingInfo = ObjectBox.getSettingBox().get((long) currentSettingId);
             if (mCurrentSettingInfo != null) {
                 mCurrentSettingName.setText(mCurrentSettingInfo.getName());
                 mStartAtBoot = (CheckBox) findViewById(R.id.check_box_start_at_boot);

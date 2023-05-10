@@ -6,12 +6,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.VpnService;
 import android.os.Bundle;
+
 import androidx.core.content.ContextCompat;
-import wang.switchy.hin2n.Hin2nApplication;
+
 import wang.switchy.hin2n.model.N2NSettingInfo;
 import wang.switchy.hin2n.service.N2NService;
-import wang.switchy.hin2n.storage.db.base.model.N2NSettingModel;
 import wang.switchy.hin2n.tool.ThreadUtils;
+import wang.switchy.hin2n.storage.model.N2NSettingModel;
 
 public class BootCompletedReceiver extends BroadcastReceiver {
 
@@ -35,7 +36,8 @@ public class BootCompletedReceiver extends BroadcastReceiver {
                     // 说明用户之前还没有同意过vpn服务,不适合开机运行,直接退出即可
                     return;
 
-                N2NSettingModel mCurrentSettingInfo = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao().load((long) currentSettingId);
+
+                N2NSettingModel mCurrentSettingInfo = ObjectBox.getSettingBox().get(currentSettingId);
                 if (mCurrentSettingInfo == null)
                     return;
 
@@ -46,7 +48,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
                 bundle.putParcelable("n2nSettingInfo", n2NSettingInfo);
                 i.putExtra("Setting", bundle);
 
-                ContextCompat.startForegroundService(context,i);
+                ContextCompat.startForegroundService(context, i);
             }
         });
     }

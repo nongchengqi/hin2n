@@ -3,7 +3,7 @@ package wang.switchy.hin2n.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import wang.switchy.hin2n.storage.db.base.model.N2NSettingModel;
+import wang.switchy.hin2n.storage.model.N2NSettingModel;
 
 /**
  * Created by janiszhang on 2018/5/11.

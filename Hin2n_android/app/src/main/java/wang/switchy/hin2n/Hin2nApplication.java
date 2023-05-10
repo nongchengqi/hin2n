@@ -1,31 +1,25 @@
 package wang.switchy.hin2n;
 
 import android.annotation.TargetApi;
+import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 
-
-import androidx.multidex.MultiDexApplication;
-
-import wang.switchy.hin2n.storage.db.base.DaoMaster;
-import wang.switchy.hin2n.storage.db.base.DaoSession;
+import wang.switchy.hin2n.receiver.ObjectBox;
 
 
 /**
  * Created by janiszhang on 2018/4/19.
  */
 
-public class Hin2nApplication extends MultiDexApplication {
+public class Hin2nApplication extends Application {
 
     public Context AppContext;
 
-    private DaoMaster.DevOpenHelper mHelper;
-    private SQLiteDatabase db;
-    private DaoMaster mDaoMaster;
-    private DaoSession mDaoSession;
+
 
     static {
         System.loadLibrary("slog");
@@ -64,18 +58,7 @@ public class Hin2nApplication extends MultiDexApplication {
      * 设置greenDao
      */
     private void setDatabase() {
-        mHelper = new DaoMaster.DevOpenHelper(this, "N2N-db", null);
-        db = mHelper.getWritableDatabase();
-        mDaoMaster = new DaoMaster(db);
-        mDaoSession = mDaoMaster.newSession();
-    }
-
-    public DaoSession getDaoSession() {
-        return mDaoSession;
-    }
-
-    public SQLiteDatabase getDb() {
-        return db;
+        ObjectBox.init(this);
     }
 
     @TargetApi(Build.VERSION_CODES.O)

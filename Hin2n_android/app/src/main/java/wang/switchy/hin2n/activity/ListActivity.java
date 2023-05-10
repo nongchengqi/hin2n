@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import io.objectbox.query.Query;
 import wang.switchy.hin2n.Hin2nApplication;
 import wang.switchy.hin2n.R;
 import wang.switchy.hin2n.adapter.SettingItemAdapter;
@@ -32,9 +33,10 @@ import wang.switchy.hin2n.event.StartEvent;
 import wang.switchy.hin2n.event.StopEvent;
 import wang.switchy.hin2n.model.EdgeStatus;
 import wang.switchy.hin2n.model.N2NSettingInfo;
+import wang.switchy.hin2n.receiver.ObjectBox;
 import wang.switchy.hin2n.service.N2NService;
-import wang.switchy.hin2n.storage.db.base.N2NSettingModelDao;
-import wang.switchy.hin2n.storage.db.base.model.N2NSettingModel;
+import wang.switchy.hin2n.storage.model.N2NSettingModel;
+import wang.switchy.hin2n.storage.model.N2NSettingModel_;
 import wang.switchy.hin2n.template.BaseTemplate;
 import wang.switchy.hin2n.template.CommonTitleTemplate;
 import wang.switchy.hin2n.tool.N2nTools;
@@ -145,10 +147,10 @@ public class ListActivity extends BaseActivity {
                                         ThreadUtils.cachedThreadExecutor(new Runnable() {
                                             @Override
                                             public void run() {
-                                                N2NSettingModel currentSettingItem = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao().load((long) currentSettingId);
+                                                N2NSettingModel currentSettingItem = ObjectBox.getSettingBox().get(currentSettingId);
                                                 if (currentSettingItem != null) {
                                                     currentSettingItem.setIsSelcected(false);
-                                                    Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao().update(currentSettingItem);
+                                                    ObjectBox.getSettingBox().put(currentSettingItem);
                                                 }
                                             }
                                         });
@@ -160,10 +162,9 @@ public class ListActivity extends BaseActivity {
                                     ThreadUtils.cachedThreadExecutor(new Runnable() {
                                         @Override
                                         public void run() {
-                                            N2NSettingModelDao n2NSettingModelDao = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao();
-                                            mN2NSettingModel = n2NSettingModelDao.load(mSettingItemEntities.get(position).getSaveId());
+                                            mN2NSettingModel =ObjectBox.getSettingBox().get(mSettingItemEntities.get(position).getSaveId());
                                             mN2NSettingModel.setIsSelcected(true);
-                                            n2NSettingModelDao.update(mN2NSettingModel);
+                                            ObjectBox.getSettingBox().put(mN2NSettingModel);
                                             mHin2nEdit.putLong("current_setting_id", mN2NSettingModel.getId());
                                             mHin2nEdit.commit();
                                             mSettingItemEntities.get(position).setSelected(true);
@@ -184,10 +185,10 @@ public class ListActivity extends BaseActivity {
                         ThreadUtils.cachedThreadExecutor(new Runnable() {
                             @Override
                             public void run() {
-                                N2NSettingModel currentSettingItem = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao().load((long) currentSettingId);
+                                N2NSettingModel currentSettingItem = ObjectBox.getSettingBox().get(currentSettingId);
                                 if (currentSettingItem != null) {
                                     currentSettingItem.setIsSelcected(false);
-                                    Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao().update(currentSettingItem);
+                                    ObjectBox.getSettingBox().put(currentSettingItem);
                                 }
                             }
                         });
@@ -199,11 +200,10 @@ public class ListActivity extends BaseActivity {
                     ThreadUtils.cachedThreadExecutor(new Runnable() {
                         @Override
                         public void run() {
-                            N2NSettingModelDao n2NSettingModelDao = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao();
-                            mN2NSettingModel = n2NSettingModelDao.load(mSettingItemEntities.get(position).getSaveId());
+                            mN2NSettingModel = ObjectBox.getSettingBox().get(mSettingItemEntities.get(position).getSaveId());
                             mN2NSettingModel.setIsSelcected(true);
 
-                            n2NSettingModelDao.update(mN2NSettingModel);
+                            ObjectBox.getSettingBox().put(mN2NSettingModel);
 
                             mHin2nEdit.putLong("current_setting_id", mN2NSettingModel.getId());
                             mHin2nEdit.commit();
@@ -254,19 +254,20 @@ public class ListActivity extends BaseActivity {
 
                 switch (index) {
                     case 0:
-                        N2NSettingModelDao n2NSettingModelDao1 = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao();
-                        N2NSettingModel n2NSettingModelCopy = n2NSettingModelDao1.load(settingItemEntity.getSaveId());
-
+                        N2NSettingModel n2NSettingModelCopy = ObjectBox.getSettingBox().get(settingItemEntity.getSaveId());
                         //1.db update
                         String copyName = n2NSettingModelCopy.getName() + "-copy";
                         String copyNameTmp = copyName;
 
                         int i = 0;
-                        while (n2NSettingModelDao1.queryBuilder().where(N2NSettingModelDao.Properties.Name.eq(copyName)).unique() != null) {
+                        N2NSettingModel settingModel = null;
+                        do {
+                            Query<N2NSettingModel> query = ObjectBox.getSettingBox().query(N2NSettingModel_.name.equal(copyName)).build();
                             i++;
+                            settingModel = query.findFirst();
                             copyName = copyNameTmp + "(" + i + ")";
-
-                        }
+                            query.close();
+                        } while (settingModel != null);
 
                         N2NSettingModel n2NSettingModel = new N2NSettingModel(null, n2NSettingModelCopy.getVersion(), copyName, n2NSettingModelCopy.getIpMode(), n2NSettingModelCopy.getIp(), n2NSettingModelCopy.getNetmask(), n2NSettingModelCopy.getCommunity(),
                                 n2NSettingModelCopy.getPassword(), n2NSettingModelCopy.getDevDesc(), n2NSettingModelCopy.getSuperNode(), n2NSettingModelCopy.getMoreSettings(), n2NSettingModelCopy.getSuperNodeBackup(),
@@ -274,7 +275,7 @@ public class ListActivity extends BaseActivity {
                                 n2NSettingModelCopy.getResoveSupernodeIP(), n2NSettingModelCopy.getLocalPort(), n2NSettingModelCopy.getAllowRouting(), n2NSettingModelCopy.getDropMuticast(),
                                 n2NSettingModelCopy.isUseHttpTunnel(), n2NSettingModelCopy.getTraceLevel(), false, n2NSettingModelCopy.getGatewayIp(), n2NSettingModelCopy.getDnsServer(),
                                 n2NSettingModelCopy.getEncryptionMode(), n2NSettingModelCopy.getHeaderEnc());
-                        n2NSettingModelDao1.insert(n2NSettingModel);
+                        ObjectBox.getSettingBox().put(n2NSettingModel);
 
                         //2.ui update
                         final SettingItemEntity settingItemEntity2 = new SettingItemEntity(n2NSettingModel.getName(),
@@ -310,8 +311,7 @@ public class ListActivity extends BaseActivity {
                                 .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
                                     public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                        N2NSettingModelDao n2NSettingModelDao = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao();
-                                        n2NSettingModelDao.deleteByKey(finalSettingItemEntity.getSaveId());
+                                        ObjectBox.getSettingBox().remove(finalSettingItemEntity.getSaveId());
 
                                         mSettingItemEntities.remove(finalSettingItemEntity);
                                         mSettingItemAdapter.notifyDataSetChanged();
@@ -344,8 +344,7 @@ public class ListActivity extends BaseActivity {
         ThreadUtils.cachedThreadExecutor(new Runnable() {
             @Override
             public void run() {
-                N2NSettingModelDao n2NSettingModelDao = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao();
-                List<N2NSettingModel> n2NSettingModels = n2NSettingModelDao.loadAll();
+                List<N2NSettingModel> n2NSettingModels = ObjectBox.getSettingBox().getAll();
 
                 N2NSettingModel n2NSettingModel;
                 mSettingItemEntities.clear();
@@ -389,8 +388,7 @@ public class ListActivity extends BaseActivity {
         if (requestCode == REQUECT_CODE_VPN && resultCode == RESULT_OK) {
             SettingItemEntity settingItemEntity = mSettingItemEntities.get(mTargetSettingPosition);
 
-            N2NSettingModelDao n2NSettingModelDao1 = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao();
-            N2NSettingModel n2NSettingModel = n2NSettingModelDao1.load(settingItemEntity.getSaveId());
+            N2NSettingModel n2NSettingModel = ObjectBox.getSettingBox().get(settingItemEntity.getSaveId());
 
             Intent intent = new Intent(ListActivity.this, N2NService.class);
             Bundle bundle = new Bundle();
