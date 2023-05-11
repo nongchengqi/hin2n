@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -32,8 +34,13 @@ fun RootView() {
         composable(Page.Home.name) {
             HomeView()
         }
-        composable(Page.Add.name) {
-            AddView()
+        composable("${Page.Add.name}/{params}", arguments = listOf(
+            navArgument("params") {
+                type = NavType.StringType
+            }
+        )) {
+            val params = it.arguments?.getString("params")
+            AddView(params = params)
         }
     }
 }

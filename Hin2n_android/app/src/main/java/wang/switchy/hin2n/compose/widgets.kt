@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -28,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,6 +41,7 @@ import androidx.compose.ui.unit.sp
 object AppColor {
     val mainColor = Color(0xff04BE02)
     val colorGreyAa = Color(0xffaaaaaa)
+    val colorGreyEf = Color(0xffefefef)
 }
 
 
@@ -117,4 +123,30 @@ fun Modifier.rippleClickable(
     val rippleIndication = rememberRipple(radius = radius, color = color)
     val source = remember { MutableInteractionSource() }
     clickable(source, rippleIndication, enabled, onClickLabel, role, onClick)
+}
+
+@Composable
+fun TitleButton(
+    modifier: Modifier = Modifier,
+    title: String, onClick: () -> Unit
+) {
+    Button(
+        modifier = modifier,
+        onClick = onClick,
+        shape = RoundedCornerShape(4.dp),
+        colors = ButtonDefaults.buttonColors(backgroundColor = AppColor.mainColor),
+        contentPadding = PaddingValues(
+            top = 14.dp,
+            bottom = 14.dp
+        )
+    ) {
+        Text(
+            title,
+            fontWeight = FontWeight.Normal,
+            fontSize = 16.sp,
+            color = Color.White,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
+    }
 }
