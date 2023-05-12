@@ -113,9 +113,6 @@ public class N2NService extends VpnService {
 
         Bundle setting = intent.getBundleExtra("Setting");
         mN2nSettingInfo = setting.getParcelable("n2nSettingInfo");
-
-        Log.e("TAG", "onStartCommand:"+mN2nSettingInfo.getName()+ "mode:"+mN2nSettingInfo.getIpMode() + "v:"+mN2nSettingInfo.getVersion());
-
         int vpnServiceFd = -1;
         if (mN2nSettingInfo.getIpMode() == 0) {
             vpnServiceFd = EstablishVpnService(mN2nSettingInfo.getIp(), getIpAddrPrefixLength(mN2nSettingInfo.getNetmask()));

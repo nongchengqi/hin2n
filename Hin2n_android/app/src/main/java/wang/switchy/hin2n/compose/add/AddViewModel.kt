@@ -301,7 +301,7 @@ fun parseKtToN2NSettingModel(data: N2NSettingModelKt): N2NSettingModel {
         data.version,
         data.name,
         data.ipMode,
-        data.ip,
+        if (data.ipMode == 1) "0.0.0.0" else data.ip,
         data.netmask,
         data.community,
         data.password,
