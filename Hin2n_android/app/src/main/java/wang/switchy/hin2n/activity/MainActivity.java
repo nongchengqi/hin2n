@@ -33,7 +33,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
-import wang.switchy.hin2n.Hin2nApplication;
 import wang.switchy.hin2n.R;
 import wang.switchy.hin2n.adapter.TermAdapter;
 import wang.switchy.hin2n.event.ConnectingEvent;

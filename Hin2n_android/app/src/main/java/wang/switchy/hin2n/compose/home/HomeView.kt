@@ -1,5 +1,8 @@
 package wang.switchy.hin2n.compose.home
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,10 +23,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.TipsAndUpdates
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,14 +34,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import wang.switchy.hin2n.compose.AppBar
 import wang.switchy.hin2n.compose.AppColor
@@ -51,7 +55,7 @@ fun HomeView(viewModel: HomeViewModel = viewModel()) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME ){
+            if (event == Lifecycle.Event.ON_RESUME) {
                 if (AddViewModel.isSaveSuccess) {
                     AddViewModel.isSaveSuccess = false
                     viewModel.dispatchAction(HomeViewAction.RefreshList)
@@ -113,9 +117,7 @@ fun ItemListView(viewModel: HomeViewModel) {
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         items(viewModel.configList, key = { it.config.id }) {
-            val selected =
-                remember { derivedStateOf { viewModel.viewState.selectId == it.config.id } }
-            ItemView(it, selected.value) {
+            ItemView(it, viewModel) {
                 viewModel.dispatchAction(HomeViewAction.OnItemClick(it))
             }
         }
@@ -123,24 +125,101 @@ fun ItemListView(viewModel: HomeViewModel) {
 }
 
 @Composable
-fun ItemView(item: ConfigExt, isSelect: Boolean, onClick: () -> Unit) {
+fun ItemView(item: ConfigExt, viewModel: HomeViewModel, onClick: () -> Unit) {
+    val selected =
+        remember { derivedStateOf { viewModel.viewState.selectId == item.config.id } }
+    val connected =
+        remember { derivedStateOf { viewModel.viewState.connectId == item.config.id } }
+
+    val permissionState =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK)
+                viewModel.dispatchAction(HomeViewAction.StartConnect)
+        }
     Column(
         Modifier.animateContentSize().fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp))
             .clip(RoundedCornerShape(8.dp)).clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
-        Text(
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(8.dp),
-            text = item.config.name,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-        if (isSelect) {
-            Row(Modifier.fillMaxWidth().height(56.dp)) {
+        Row(Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    text = item.config.name,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    text = item.config.superNode,
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = AppColor.colorGreyAa
+                )
+            }
 
+            if (connected.value) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                        .align(Alignment.CenterVertically),
+                    text = viewModel.getConnectTips(viewModel.viewState.connectState),
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = viewModel.getConnectColor(viewModel.viewState.connectState)
+                )
+            }
+        }
+        if (selected.value) {
+            Row(
+                Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                IconTextButton(
+                    modifier = Modifier.fillMaxHeight().padding(vertical = 8.dp)
+                        .background(
+                            color = if (connected.value) viewModel.getConnectColor(viewModel.viewState.connectState) else AppColor.colorGreyAa,
+                            shape = RoundedCornerShape(28.dp)
+                        )
+                        .clip(RoundedCornerShape(28.dp)).clickable {
+                            viewModel.dispatchAction(HomeViewAction.UpdateConnectId(item.config.id))
+                            if (viewModel.hasVpnPermission()
+                            ) {
+                                viewModel.dispatchAction(HomeViewAction.StartConnect)
+                            } else {
+                                permissionState.launch(viewModel.getPermissionIntent())
+                            }
+                        },
+                    icon = Icons.Default.Link,
+                    text = if (connected.value) viewModel.getConnectText(viewModel.viewState.connectState) else "连接"
+                )
             }
         }
     }
+}
 
+@Composable
+fun IconTextButton(modifier: Modifier, icon: ImageVector, text: String) {
+    Box(modifier) {
+        Row(Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
+            Image(
+                icon,
+                contentDescription = "icon",
+                modifier = Modifier.align(Alignment.CenterVertically).fillMaxHeight()
+                    .padding(vertical = 4.dp),
+                colorFilter = ColorFilter.tint(Color.White)
+            )
+            Text(
+                modifier = Modifier.padding(horizontal = 8.dp).align(Alignment.CenterVertically),
+                text = text,
+                fontSize = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = Color.White
+            )
+        }
+    }
 }
