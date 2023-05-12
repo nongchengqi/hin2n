@@ -68,7 +68,7 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
             VpnEventReceiver.ACTION_GET_CONFIG -> {
                 val remoteData =
                     if (mCurrentSettingInfo == null) "" else Gson().toJson(mCurrentSettingInfo)
-                sendBroadcast(action = VpnEventReceiver.ACTION_GET_STATE, data = remoteData)
+                sendBroadcast(action = VpnEventReceiver.ACTION_GET_CONFIG, data = remoteData)
             }
         }
 
