@@ -100,10 +100,10 @@ android {
         debug {}
 
         release {
-            storeFile file("Hin2n.jks")
-            storePassword getEnvOrConsole("HIN2N_KSTOREPWD", "Keystore password")
-            keyAlias "Hin2n"
-            keyPassword getEnvOrConsole("HIN2N_KEYPWD", "Key password")
+            storeFile file("evan.jks")
+            storePassword "123456"
+            keyAlias "evan"
+            keyPassword "123456"
         }
     }
 
