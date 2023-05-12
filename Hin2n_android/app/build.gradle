@@ -76,7 +76,7 @@ def getAllManifestValues = { variant ->
 android {
     compileSdkVersion 33
     defaultConfig {
-        applicationId "wang.switchy.hin2n"
+        applicationId "com.evan.hin2n"
         minSdkVersion 21
         targetSdkVersion 33
         versionCode getVersionCode()

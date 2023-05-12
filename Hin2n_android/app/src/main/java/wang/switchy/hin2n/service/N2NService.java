@@ -81,7 +81,7 @@ public class N2NService extends VpnService {
         }
 
         if (!mN2nSettingInfo.getDnsServer().isEmpty()) {
-            Log.d("N2NService", "Using DNS server: " + mN2nSettingInfo.getDnsServer());
+            Log.d("N2NService", "Using DNS server: " + mN2nSettingInfo.getDnsServer() + "mode:"+mN2nSettingInfo.getIpMode() + "v:"+mN2nSettingInfo.getVersion());
             builder.addDnsServer(mN2nSettingInfo.getDnsServer());
         }
 
@@ -114,7 +114,7 @@ public class N2NService extends VpnService {
         Bundle setting = intent.getBundleExtra("Setting");
         mN2nSettingInfo = setting.getParcelable("n2nSettingInfo");
 
-        Log.e("TAG", "onStartCommand:"+mN2nSettingInfo.getName());
+        Log.e("TAG", "onStartCommand:"+mN2nSettingInfo.getName()+ "mode:"+mN2nSettingInfo.getIpMode() + "v:"+mN2nSettingInfo.getVersion());
 
         int vpnServiceFd = -1;
         if (mN2nSettingInfo.getIpMode() == 0) {

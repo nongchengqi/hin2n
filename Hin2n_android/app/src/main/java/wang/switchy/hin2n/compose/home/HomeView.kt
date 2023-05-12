@@ -11,18 +11,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.TipsAndUpdates
 import androidx.compose.runtime.Composable
@@ -195,6 +199,33 @@ fun ItemView(item: ConfigExt, viewModel: HomeViewModel, onClick: () -> Unit) {
                         },
                     icon = Icons.Default.Link,
                     text = if (connected.value) viewModel.getConnectText(viewModel.viewState.connectState) else "连接"
+                )
+                Spacer(Modifier.weight(1f))
+
+                Image(
+                    Icons.Default.Delete,
+                    contentDescription = "icon",
+                    modifier = Modifier.align(Alignment.CenterVertically).size(40.dp).clip(
+                        RoundedCornerShape(20.dp)
+                    ).clickable {
+                        viewModel.dispatchAction(HomeViewAction.DeleteItem(item.config.id))
+                    }.padding(4.dp)
+                        .background(AppColor.colorGreyEf, shape = RoundedCornerShape(16.dp))
+                        .padding(4.dp),
+                    colorFilter = ColorFilter.tint(AppColor.errorColor),
+                )
+                Spacer(Modifier.width(20.dp))
+                Image(
+                    Icons.Default.Edit,
+                    contentDescription = "icon",
+                    modifier = Modifier.align(Alignment.CenterVertically).size(40.dp).clip(
+                        RoundedCornerShape(20.dp)
+                    ).clickable {
+                        viewModel.dispatchAction(HomeViewAction.ToEditPage(item.config.id))
+                    }.padding(4.dp)
+                        .background(AppColor.colorGreyEf, shape = RoundedCornerShape(16.dp))
+                        .padding(4.dp),
+                    colorFilter = ColorFilter.tint(AppColor.mainColor),
                 )
             }
         }

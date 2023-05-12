@@ -21,6 +21,8 @@ import org.greenrobot.eventbus.ThreadMode
 import wang.switchy.hin2n.Hin2nApplication
 import wang.switchy.hin2n.compose.AppColor
 import wang.switchy.hin2n.compose.BaseViewModel
+import wang.switchy.hin2n.compose.Page
+import wang.switchy.hin2n.compose.PageRouter
 import wang.switchy.hin2n.event.ConnectingEvent
 import wang.switchy.hin2n.event.ErrorEvent
 import wang.switchy.hin2n.event.LogChangeEvent
@@ -58,11 +60,11 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
             logTxtPath = n2nSp.getString("current_log_path", "")!!
             withContext(Dispatchers.Main) {
                 selectConnectId = n2nSp.getLong("current_setting_id", -1L)
-                if (selectConnectId == -1L){
+                if (selectConnectId == -1L) {
                     if (configList.isNotEmpty()) {
                         viewState = viewState.copy(selectId = configList.first().config.id)
                     }
-                }else{
+                } else {
                     viewState = viewState.copy(selectId = selectConnectId)
                 }
             }
@@ -132,7 +134,7 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
         when (action) {
             is HomeViewAction.OnItemClick -> {
                 viewState = viewState.copy(selectId = action.item.config.id)
-                //PageRouter.routerTo(Page.Add, params = "${action.item.config.id}")
+
             }
 
             HomeViewAction.RefreshList -> {
@@ -166,6 +168,33 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
                 selectConnectId = action.id
                 viewState = viewState.copy(connectId = action.id)
             }
+
+            is HomeViewAction.DeleteItem -> {
+                if (viewState.connectId == action.id && viewState.connectState == ConnectState.Connected) {
+                    Toast.makeText(
+                        Hin2nApplication.instance,
+                        "此配置连接中，请断开连接后再删除",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    configList.find { it.config.id == action.id }?.let {
+                        configList.remove(it)
+                    }
+
+                }
+            }
+
+            is HomeViewAction.ToEditPage -> {
+                if (viewState.connectId == action.id && viewState.connectState == ConnectState.Connected) {
+                    Toast.makeText(
+                        Hin2nApplication.instance,
+                        "此配置连接中，请断开连接后再编辑",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    PageRouter.routerTo(Page.Add, params = "${action.id}")
+                }
+            }
         }
     }
 
@@ -196,7 +225,7 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
 
     private fun handleStop() {
         viewState = viewState.copy(connectState = ConnectState.Normal)
-        if (N2NService.INSTANCE !=null) {
+        if (N2NService.INSTANCE != null) {
             N2NService.INSTANCE.stop(null)
         }
     }
@@ -297,6 +326,8 @@ sealed class HomeViewAction {
     class OnItemClick(val item: ConfigExt) : HomeViewAction()
     object StartConnect : HomeViewAction()
     class UpdateConnectId(val id: Long) : HomeViewAction()
+    class DeleteItem(val id: Long) : HomeViewAction()
+    class ToEditPage(val id: Long) : HomeViewAction()
 
 }
 

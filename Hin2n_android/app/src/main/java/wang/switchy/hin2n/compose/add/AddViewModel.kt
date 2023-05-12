@@ -359,7 +359,7 @@ data class N2NSettingModelKt(
     val superNodeBackup: String = "",
     val macAddr: String = EdgeCmd.getRandomMac(),
     val mtu: String = R.string.item_default_mtu.toResString(), //int
-    val localIP: String = "",
+    val localIP: String = "auto",
     val holePunchInterval: String = R.string.item_default_holepunchinterval.toResString(), //int
     val resoveSupernodeIP: Boolean = false,
     val localPort: String = R.string.item_default_localport.toResString(), //int
