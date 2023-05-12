@@ -124,33 +124,7 @@ android {
         }
     }
 
-    gradle.taskGraph.beforeTask { Task task ->
-        if (task.name.contains("Release")) {
-            task.onlyIf {
-                return getAllManifestValues()
-            }
-        }
-    }
 
-    applicationVariants.all { variant ->
-        getAllManifestValues(variant)
-//        if (variant.buildType.name == 'debug') {
-//            variant.mergedFlavor.manifestPlaceholders.UMENG_CHANNEL_VALUE = 'umtest'
-//        }
-
-        variant.outputs.all { output ->
-            def outputFile = output.outputFile
-            if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                output.versionNameOverride = getVersionName()
-                def channel = variant.mergedFlavor.manifestPlaceholders.UMENG_CHANNEL_VALUE
-                def arch = variant.mergedFlavor.manifestPlaceholders.ARCH
-//              def fileName = "${variant.mergedFlavor.versionName}_${channel}_${arch}_${variant.buildType.name}.apk"
-                def fileName = "${variant.mergedFlavor.versionName}_${arch}_${channel}.apk"
-                outputFileName = fileName
-            }
-
-        }
-    }
 
     flavorDimensions "channel", "arch"
 
