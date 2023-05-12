@@ -43,10 +43,6 @@
             </intent-filter>
         </receiver>
 
-        <activity
-                android:name=".activity.MainActivity"
-                android:exported="true"
-                android:excludeFromRecents="true"/>
 
         <activity
                 android:name="wang.switchy.hin2n.compose.ComposeActivity"
@@ -58,11 +54,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".activity.ListActivity" />
-
-        <activity android:name=".activity.SettingDetailsActivity" />
-        <activity android:name=".activity.WebViewActivity" />
 
         <service
                 android:name=".service.N2NService"

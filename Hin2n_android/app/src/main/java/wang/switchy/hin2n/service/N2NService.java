@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -24,7 +23,7 @@ import java.io.IOException;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import wang.switchy.hin2n.R;
-import wang.switchy.hin2n.activity.MainActivity;
+import wang.switchy.hin2n.compose.ComposeActivity;
 import wang.switchy.hin2n.event.*;
 import wang.switchy.hin2n.model.EdgeCmd;
 import wang.switchy.hin2n.model.EdgeStatus;
@@ -115,6 +114,8 @@ public class N2NService extends VpnService {
         Bundle setting = intent.getBundleExtra("Setting");
         mN2nSettingInfo = setting.getParcelable("n2nSettingInfo");
 
+        Log.e("TAG", "onStartCommand:"+mN2nSettingInfo.getName());
+
         int vpnServiceFd = -1;
         if (mN2nSettingInfo.getIpMode() == 0) {
             vpnServiceFd = EstablishVpnService(mN2nSettingInfo.getIp(), getIpAddrPrefixLength(mN2nSettingInfo.getNetmask()));
@@ -149,7 +150,7 @@ public class N2NService extends VpnService {
             NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             manager.createNotificationChannel(notificationChannel);
 
-            Intent i = new Intent(this, MainActivity.class);
+            Intent i = new Intent(this, ComposeActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_IMMUTABLE);
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this,CHANNEL_ONE_ID)
                     .setTicker("Nature")
@@ -304,7 +305,7 @@ public class N2NService extends VpnService {
                 mNotificationManager.cancel(sNotificationId);
                 break;
             case CMD_ADD_NOTIFICATION:
-                Intent mainIntent = new Intent(this, MainActivity.class);
+                Intent mainIntent = new Intent(this, ComposeActivity.class);
                 PendingIntent mainPendingIntent = PendingIntent.getActivity(this, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getString(R.string.notification_channel_id_default))
@@ -326,7 +327,7 @@ public class N2NService extends VpnService {
                 mNotificationManager.notify(sNotificationId, notification);
                 break;
             case CMD_UPDATE_NOTIFICATION:
-                Intent mainIntent1 = new Intent(this, MainActivity.class);
+                Intent mainIntent1 = new Intent(this, ComposeActivity.class);
                 PendingIntent mainPendingIntent1 = PendingIntent.getActivity(this, 0, mainIntent1, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 NotificationCompat.Builder builder2 = new NotificationCompat.Builder(this, getString(R.string.notification_channel_id_default))
