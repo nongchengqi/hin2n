@@ -2,6 +2,7 @@ package wang.switchy.hin2n.compose.home
 
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.net.VpnService
 import android.os.Bundle
@@ -12,12 +13,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.json.JSONObject
 import wang.switchy.hin2n.Hin2nApplication
 import wang.switchy.hin2n.compose.AppColor
 import wang.switchy.hin2n.compose.BaseViewModel
@@ -32,6 +35,7 @@ import wang.switchy.hin2n.event.SupernodeDisconnectEvent
 import wang.switchy.hin2n.model.EdgeStatus.RunningStatus
 import wang.switchy.hin2n.model.N2NSettingInfo
 import wang.switchy.hin2n.receiver.ObjectBox
+import wang.switchy.hin2n.receiver.VpnEventReceiver
 import wang.switchy.hin2n.service.N2NService
 import wang.switchy.hin2n.storage.model.N2NSettingModel
 import wang.switchy.hin2n.tool.IOUtils
@@ -49,10 +53,35 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
     )
     private var selectConnectId = -1L
 
+    private val vpnEventReceiver = VpnEventReceiver { action, data ->
+        when (action) {
+            VpnEventReceiver.ACTION_GET_STATE -> {
+                val remoteData = when (viewState.connectState) {
+                    ConnectState.ConnectFail -> "connect_fail"
+                    ConnectState.Connected -> "connected"
+                    ConnectState.NoConfig -> "disconnect"
+                    ConnectState.Normal -> "disconnect"
+                }
+                sendBroadcast(action = VpnEventReceiver.ACTION_GET_STATE, data = remoteData)
+            }
+
+            VpnEventReceiver.ACTION_GET_CONFIG -> {
+                val remoteData =
+                    if (mCurrentSettingInfo == null) "" else Gson().toJson(mCurrentSettingInfo)
+                sendBroadcast(action = VpnEventReceiver.ACTION_GET_STATE, data = remoteData)
+            }
+        }
+
+    }
+    private val filter = IntentFilter().apply {
+        addAction(VpnEventReceiver.LOCAL_ACTION)
+    }
+
     init {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this)
         }
+        registerReceiver()
         refreshList()
         viewModelScope.launch(Dispatchers.IO) {
             val n2nSp: SharedPreferences =
@@ -68,6 +97,31 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
                     viewState = viewState.copy(selectId = selectConnectId)
                 }
             }
+        }
+
+    }
+
+    private fun registerReceiver() {
+        kotlin.runCatching {
+            Hin2nApplication.instance.registerReceiver(vpnEventReceiver, filter)
+        }
+
+    }
+
+    private fun unregisterReceiver() {
+        kotlin.runCatching {
+            Hin2nApplication.instance.unregisterReceiver(vpnEventReceiver)
+        }
+    }
+
+    private fun sendBroadcast(action: String, data: String?) {
+        Intent().also { intent ->
+            intent.action = VpnEventReceiver.REMOTE_ACTION
+            intent.putExtra("action", action)
+            data?.let {
+                intent.putExtra("data", it)
+            }
+            Hin2nApplication.instance.sendBroadcast(intent)
         }
     }
 
@@ -269,6 +323,7 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
 
     override fun onCleared() {
         super.onCleared()
+        unregisterReceiver()
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this)
         }
