@@ -2,7 +2,6 @@ package wang.switchy.hin2n.compose.home
 
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.net.VpnService
 import android.os.Bundle
@@ -20,7 +19,6 @@ import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import org.json.JSONObject
 import wang.switchy.hin2n.Hin2nApplication
 import wang.switchy.hin2n.compose.AppColor
 import wang.switchy.hin2n.compose.BaseViewModel
@@ -37,8 +35,10 @@ import wang.switchy.hin2n.model.N2NSettingInfo
 import wang.switchy.hin2n.receiver.ObjectBox
 import wang.switchy.hin2n.receiver.VpnEventReceiver
 import wang.switchy.hin2n.service.N2NService
+import wang.switchy.hin2n.service.VpnReceiverService
 import wang.switchy.hin2n.storage.model.N2NSettingModel
 import wang.switchy.hin2n.tool.IOUtils
+import wang.switchy.hin2n.tool.N2nTools
 
 class HomeViewModel : BaseViewModel<HomeViewAction>() {
     private var mCurrentSettingInfo: N2NSettingModel? = null
@@ -53,35 +53,11 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
     )
     private var selectConnectId = -1L
 
-    private val vpnEventReceiver = VpnEventReceiver { action, data ->
-        when (action) {
-            VpnEventReceiver.ACTION_GET_STATE -> {
-                val remoteData = when (viewState.connectState) {
-                    ConnectState.ConnectFail -> "connect_fail"
-                    ConnectState.Connected -> "connected"
-                    ConnectState.NoConfig -> "disconnect"
-                    ConnectState.Normal -> "disconnect"
-                }
-                sendBroadcast(action = VpnEventReceiver.ACTION_GET_STATE, data = remoteData)
-            }
-
-            VpnEventReceiver.ACTION_GET_CONFIG -> {
-                val remoteData =
-                    if (mCurrentSettingInfo == null) "" else Gson().toJson(mCurrentSettingInfo)
-                sendBroadcast(action = VpnEventReceiver.ACTION_GET_CONFIG, data = remoteData)
-            }
-        }
-
-    }
-    private val filter = IntentFilter().apply {
-        addAction(VpnEventReceiver.LOCAL_ACTION)
-    }
-
     init {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this)
         }
-        registerReceiver()
+        registerReceiverCallback()
         refreshList()
         viewModelScope.launch(Dispatchers.IO) {
             val n2nSp: SharedPreferences =
@@ -101,27 +77,32 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
 
     }
 
-    private fun registerReceiver() {
-        kotlin.runCatching {
-            Hin2nApplication.instance.registerReceiver(vpnEventReceiver, filter)
-        }
+    private fun registerReceiverCallback() {
+        VpnReceiverService.updateReceiverCallback { action, data ->
+            when (action) {
+                VpnEventReceiver.ACTION_GET_STATE -> {
+                    val remoteData = when (viewState.connectState) {
+                        ConnectState.ConnectFail -> "connect_fail"
+                        ConnectState.Connected -> "connected"
+                        ConnectState.NoConfig -> "disconnect"
+                        ConnectState.Normal -> "disconnect"
+                        ConnectState.Connecting -> "connecting"
+                    }
+                    VpnReceiverService.sendBroadcast(
+                        action = VpnEventReceiver.ACTION_GET_STATE,
+                        data = remoteData
+                    )
+                }
 
-    }
-
-    private fun unregisterReceiver() {
-        kotlin.runCatching {
-            Hin2nApplication.instance.unregisterReceiver(vpnEventReceiver)
-        }
-    }
-
-    private fun sendBroadcast(action: String, data: String?) {
-        Intent().also { intent ->
-            intent.action = VpnEventReceiver.REMOTE_ACTION
-            intent.putExtra("action", action)
-            data?.let {
-                intent.putExtra("data", it)
+                VpnEventReceiver.ACTION_GET_CONFIG -> {
+                    val remoteData =
+                        if (mCurrentSettingInfo == null) "" else Gson().toJson(mCurrentSettingInfo)
+                    VpnReceiverService.sendBroadcast(
+                        action = VpnEventReceiver.ACTION_GET_CONFIG,
+                        data = remoteData
+                    )
+                }
             }
-            Hin2nApplication.instance.sendBroadcast(intent)
         }
     }
 
@@ -164,6 +145,13 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
                         RunningStatus.SUPERNODE_DISCONNECT -> {
                             viewState.copy(
                                 connectState = ConnectState.ConnectFail,
+                                connectId = mCurrentSettingInfo?.id ?: -1L
+                            )
+                        }
+
+                        RunningStatus.CONNECTING -> {
+                            viewState.copy(
+                                connectState = ConnectState.Connecting,
                                 connectId = mCurrentSettingInfo?.id ?: -1L
                             )
                         }
@@ -249,10 +237,18 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
                     PageRouter.routerTo(Page.Add, params = "${action.id}")
                 }
             }
+
+            is HomeViewAction.ShowNoNetDialog -> {
+                viewState = viewState.copy(showNoNetDialog = action.show)
+            }
         }
     }
 
     private fun handleConnect() {
+        if (!N2nTools.checkNetworkAvailable()){
+            dispatchAction(HomeViewAction.ShowNoNetDialog(true))
+            return
+        }
         mCurrentSettingInfo = ObjectBox.getSettingBox().get(selectConnectId)
         if (mCurrentSettingInfo == null) {
             Toast.makeText(
@@ -292,6 +288,7 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
             ConnectState.Connected -> AppColor.mainColor
             ConnectState.NoConfig -> AppColor.colorGreyAa
             ConnectState.Normal -> AppColor.colorGreyAa
+            ConnectState.Connecting -> AppColor.colorGreyAa
         }
     }
 
@@ -301,6 +298,7 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
             ConnectState.Connected -> "断开"
             ConnectState.NoConfig -> "连接"
             ConnectState.Normal -> "连接"
+            ConnectState.Connecting -> "连接中"
         }
     }
 
@@ -310,6 +308,7 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
             ConnectState.Connected -> "已连接"
             ConnectState.NoConfig -> "未连接"
             ConnectState.Normal -> "未连接"
+            ConnectState.Connecting -> "连接中"
         }
     }
 
@@ -323,7 +322,7 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
 
     override fun onCleared() {
         super.onCleared()
-        unregisterReceiver()
+        VpnReceiverService.updateReceiverCallback(null)
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this)
         }
@@ -366,12 +365,18 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
 
 }
 
-data class HomeViewState(val selectId: Long, val connectState: ConnectState, val connectId: Long)
+data class HomeViewState(
+    val selectId: Long,
+    val connectState: ConnectState,
+    val connectId: Long,
+    val showNoNetDialog: Boolean = false
+)
 
 sealed class ConnectState {
     object NoConfig : ConnectState()
     object Normal : ConnectState()
     object Connected : ConnectState()
+    object Connecting : ConnectState()
     object ConnectFail : ConnectState()
 }
 
@@ -383,6 +388,7 @@ sealed class HomeViewAction {
     class UpdateConnectId(val id: Long) : HomeViewAction()
     class DeleteItem(val id: Long) : HomeViewAction()
     class ToEditPage(val id: Long) : HomeViewAction()
+    class ShowNoNetDialog(val show: Boolean) : HomeViewAction()
 
 }
 

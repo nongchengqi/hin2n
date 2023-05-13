@@ -51,6 +51,7 @@ import wang.switchy.hin2n.compose.AppBar
 import wang.switchy.hin2n.compose.AppColor
 import wang.switchy.hin2n.compose.Page
 import wang.switchy.hin2n.compose.PageRouter
+import wang.switchy.hin2n.compose.SimpleDialog
 import wang.switchy.hin2n.compose.add.AddViewModel
 import wang.switchy.hin2n.compose.rippleClickable
 
@@ -72,6 +73,7 @@ fun HomeView(viewModel: HomeViewModel = viewModel()) {
             lifecycle.removeObserver(observer)
         }
     }
+    Dialogs(viewModel)
     Column(Modifier.fillMaxSize()) {
         AppBar("众鼎互联", showBack = false, rightIcon = {
             Image(
@@ -110,6 +112,15 @@ fun HomeView(viewModel: HomeViewModel = viewModel()) {
             }
         } else {
             ItemListView(viewModel)
+        }
+    }
+}
+
+@Composable
+fun Dialogs(viewModel: HomeViewModel) {
+    if (viewModel.viewState.showNoNetDialog) {
+        SimpleDialog("提示", "无网络连接，请检查后重试") {
+            viewModel.dispatchAction(HomeViewAction.ShowNoNetDialog(false))
         }
     }
 }

@@ -13,9 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
@@ -43,18 +41,12 @@
             </intent-filter>
         </receiver>
 
-
         <activity
                 android:name="wang.switchy.hin2n.compose.ComposeActivity"
                 android:theme="@android:style/Theme.Material.Light.NoActionBar"
                 android:excludeFromRecents="true"
-                android:exported="true">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-        </activity>
+                android:launchMode="singleTask"
+                android:exported="true" />
 
         <service
                 android:name=".service.N2NService"
@@ -64,6 +56,9 @@
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
+        <service
+                android:name=".service.VpnReceiverService"
+                android:exported="false" />
 
         <provider
                 android:name="androidx.core.content.FileProvider"

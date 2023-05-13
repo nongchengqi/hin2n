@@ -4,10 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.VpnService;
 import android.util.TypedValue;
 
 import java.net.InetAddress;
+
+import wang.switchy.hin2n.Hin2nApplication;
 
 /**
  * Created by janiszhang on 2018/5/23.
@@ -104,5 +108,29 @@ public class N2nTools {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    public static boolean checkNetworkAvailable() {
+        Context context = Hin2nApplication.getInstance();
+        //获取手机所有链接管理对象（包括对Wi-Fi，net等连接的管理）
+        ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (manager == null) {
+            return false;
+        } else {
+            //获取NetworkInfo对象
+            NetworkInfo[] info = manager.getAllNetworkInfo();
+            if (info != null && info.length > 0) {
+                for (int i = 0; i < info.length; i++) {
+                    System.out.println(i + "状态" + info[i].getState());
+                    System.out.println(i + "类型" + info[i].getTypeName());
+
+                    // 判断当前网络状态是否为连接状态
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

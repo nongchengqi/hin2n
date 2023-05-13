@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,9 +17,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -30,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 
 object AppColor {
     val mainColor = Color(0xff04BE02)
@@ -150,4 +156,98 @@ fun TitleButton(
             textAlign = TextAlign.Center
         )
     }
+}
+
+@Composable
+fun SimpleDialog(
+    title: String,
+    desc: String,
+    confirmButtonTitle: String = "确定",
+    cancelButtonTitle: String = "取消",
+    confirmTextStyle: TextStyle = TextStyle(
+        fontSize = 15.sp,
+        color = Color.White,
+        fontWeight = FontWeight.Medium
+    ),
+    cancelTextStyle: TextStyle = TextStyle(
+        fontSize = 15.sp,
+        color = MaterialTheme.colors.onBackground.copy(
+            alpha = 0.5f
+        ),
+        fontWeight = FontWeight.Medium
+    ),
+    onClick: (Boolean) -> Unit
+) {
+    AlertDialog(
+        title = {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = title,
+                textAlign = TextAlign.Center,
+                style = TextStyle(
+                    fontSize = 17.sp,
+                    color = MaterialTheme.colors.onBackground,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
+        text = {
+            Text(
+                text = desc,
+                style = MaterialTheme.typography.body1
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(6.dp),
+        onDismissRequest = {
+            onClick(false)
+        },
+        properties = DialogProperties(
+            dismissOnClickOutside = false
+        ),
+        buttons = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    modifier = Modifier
+                        .width(110.dp)
+                        .height(44.dp),
+                    shape = RoundedCornerShape(corner = CornerSize(22.dp)),
+                    elevation = null,
+                    colors = ButtonDefaults.textButtonColors(
+                        backgroundColor = MaterialTheme.colors.onBackground.copy(
+                            alpha = 0.08f
+                        ),
+                    ),
+                    onClick = {
+                        onClick(false)
+                    }) {
+                    Text(
+                        text = cancelButtonTitle,
+                        style = cancelTextStyle
+                    )
+                }
+                Spacer(modifier = Modifier.size(15.dp))
+                Button(
+                    modifier = Modifier
+                        .width(110.dp)
+                        .height(44.dp),
+                    shape = RoundedCornerShape(corner = CornerSize(22.dp)),
+                    colors = ButtonDefaults.textButtonColors(
+                        backgroundColor = AppColor.mainColor,
+                    ),
+                    onClick = { onClick(true) }
+                ) {
+                    Text(
+                        text = confirmButtonTitle,
+                        style = confirmTextStyle
+                    )
+                }
+            }
+        },
+    )
 }

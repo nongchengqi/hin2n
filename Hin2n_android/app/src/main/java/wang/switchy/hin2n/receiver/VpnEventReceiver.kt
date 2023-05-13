@@ -3,6 +3,7 @@ package wang.switchy.hin2n.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 
 class VpnEventReceiver(private val onReceive: (String, String?) -> Unit) : BroadcastReceiver() {
     companion object {
@@ -14,6 +15,7 @@ class VpnEventReceiver(private val onReceive: (String, String?) -> Unit) : Broad
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        Log.e("TTAG", "onReceive")
         intent?.let {
             val action = it.getStringExtra("action")
             if (!action.isNullOrEmpty()) {
