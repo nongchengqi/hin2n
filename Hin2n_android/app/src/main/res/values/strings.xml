@@ -9,7 +9,7 @@
     <string name="title_add_setting">New setting</string>
     <string name="title_update_setting">Update setting</string>
     <string name="title_setting_list">Settings list</string>
-    
+
     <string name="dialog_add_succeed">Add succeed!</string>
     <string name="dialog_save_succeed">Save succeed!</string>
     <string name="dialog_update_succeed">Update succeed!</string>

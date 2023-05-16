@@ -10,6 +10,7 @@ public class N2NSettingModel {
     Long id;
     int version;
     String name;
+    String uuid;
     int ipMode;  /* 0 - fix , 1 - from supernode */
     String ip;
     String netmask;
@@ -109,6 +110,14 @@ public class N2NSettingModel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public boolean getIsSelcected() {
@@ -250,10 +259,11 @@ public class N2NSettingModel {
     public N2NSettingModel() {
     }
 
-    public N2NSettingModel(Long id, int version, String name, int ipMode, String ip, String netmask, String community, String password, String devDesc, String superNode, boolean moreSettings, String superNodeBackup, String macAddr, int mtu, String localIP, int holePunchInterval, boolean resoveSupernodeIP, int localPort, boolean allowRouting, boolean dropMuticast, boolean useHttpTunnel, int traceLevel, boolean isSelcected, String gatewayIp, String dnsServer, String encryptionMode, boolean headerEnc) {
+    public N2NSettingModel(Long id, int version, String name, String uuid, int ipMode, String ip, String netmask, String community, String password, String devDesc, String superNode, boolean moreSettings, String superNodeBackup, String macAddr, int mtu, String localIP, int holePunchInterval, boolean resoveSupernodeIP, int localPort, boolean allowRouting, boolean dropMuticast, boolean useHttpTunnel, int traceLevel, boolean isSelcected, String gatewayIp, String dnsServer, String encryptionMode, boolean headerEnc) {
         this.id = id;
         this.version = version;
         this.name = name;
+        this.uuid = uuid;
         this.ipMode = ipMode;
         this.ip = ip;
         this.netmask = netmask;
@@ -294,6 +304,7 @@ public class N2NSettingModel {
                 "id=" + id +
                 ", version=" + version +
                 ", name='" + name + '\'' +
+                ", uuid='" + uuid + '\'' +
                 ", ipMode='" + ipMode + '\'' +
                 ", ip='" + ip + '\'' +
                 ", netmask='" + netmask + '\'' +

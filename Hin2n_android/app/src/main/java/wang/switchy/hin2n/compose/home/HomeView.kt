@@ -201,11 +201,11 @@ fun ItemView(item: ConfigExt, viewModel: HomeViewModel, onClick: () -> Unit) {
                         )
                         .clip(RoundedCornerShape(28.dp)).clickable {
                             viewModel.dispatchAction(HomeViewAction.UpdateConnectId(item.config.id))
-                            if (viewModel.hasVpnPermission()
+                            if (HomeViewModel.hasVpnPermission()
                             ) {
                                 viewModel.dispatchAction(HomeViewAction.StartConnect)
                             } else {
-                                permissionState.launch(viewModel.getPermissionIntent())
+                                permissionState.launch(HomeViewModel.getPermissionIntent())
                             }
                         },
                     icon = Icons.Default.Link,

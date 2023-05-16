@@ -30,4 +30,9 @@ class ComposeActivity : ComponentActivity() {
         }
         startService(Intent(this, VpnReceiverService::class.java))
     }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+    }
 }

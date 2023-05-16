@@ -41,6 +41,17 @@ import wang.switchy.hin2n.tool.IOUtils
 import wang.switchy.hin2n.tool.N2nTools
 
 class HomeViewModel : BaseViewModel<HomeViewAction>() {
+    companion object {
+        fun getPermissionIntent(): Intent? = VpnService.prepare(Hin2nApplication.instance)
+        fun hasVpnPermission(): Boolean {
+            return if (N2NService.INSTANCE == null) {
+                getPermissionIntent() == null
+            } else {
+                true
+            }
+        }
+    }
+
     private var mCurrentSettingInfo: N2NSettingModel? = null
     private var logTxtPath: String = ""
     val configList = mutableStateListOf<ConfigExt>()
@@ -221,6 +232,7 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
                 } else {
                     configList.find { it.config.id == action.id }?.let {
                         configList.remove(it)
+                        ObjectBox.getSettingBox().remove(it.config.id)
                     }
 
                 }
@@ -245,7 +257,7 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
     }
 
     private fun handleConnect() {
-        if (!N2nTools.checkNetworkAvailable()){
+        if (!N2nTools.checkNetworkAvailable()) {
             dispatchAction(HomeViewAction.ShowNoNetDialog(true))
             return
         }
@@ -280,8 +292,6 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
         }
     }
 
-    fun getPermissionIntent(): Intent? = VpnService.prepare(Hin2nApplication.instance)
-
     fun getConnectColor(state: ConnectState): Color {
         return when (state) {
             ConnectState.ConnectFail -> AppColor.errorColor
@@ -309,14 +319,6 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
             ConnectState.NoConfig -> "未连接"
             ConnectState.Normal -> "未连接"
             ConnectState.Connecting -> "连接中"
-        }
-    }
-
-    fun hasVpnPermission(): Boolean {
-        return if (N2NService.INSTANCE == null) {
-            getPermissionIntent() == null
-        } else {
-            true
         }
     }
 

@@ -26,6 +26,11 @@
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning"
             tools:replace="android:icon">
+        <activity
+                android:name=".compose.LinkActivity"
+                android:theme="@style/DialogStyle"
+                android:excludeFromRecents="true"
+                android:exported="true" />
         <receiver
                 android:name=".receiver.BootCompletedReceiver"
                 android:enabled="true"
@@ -42,16 +47,16 @@
         </receiver>
 
         <activity
-                android:name="wang.switchy.hin2n.compose.ComposeActivity"
-                android:theme="@android:style/Theme.Material.Light.NoActionBar"
+                android:name=".compose.ComposeActivity"
                 android:excludeFromRecents="true"
+                android:exported="true"
                 android:launchMode="singleTask"
-                android:exported="true" />
+                android:theme="@android:style/Theme.Material.Light.NoActionBar" />
 
         <service
                 android:name=".service.N2NService"
-                android:permission="android.permission.BIND_VPN_SERVICE"
-                android:exported="true">
+                android:exported="true"
+                android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
@@ -69,9 +74,6 @@
                     android:name="android.support.FILE_PROVIDER_PATHS"
                     android:resource="@xml/provider_paths" />
         </provider>
-
-
     </application>
-
 
 </manifest>

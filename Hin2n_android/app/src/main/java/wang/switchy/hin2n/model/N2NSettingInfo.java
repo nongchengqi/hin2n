@@ -13,6 +13,7 @@ public class N2NSettingInfo implements Parcelable {
 
     Long id;
     String name;
+    String uuid;
     int version;
     int ipMode;
     String ip;
@@ -44,6 +45,7 @@ public class N2NSettingInfo implements Parcelable {
     public N2NSettingInfo(N2NSettingModel n2NSettingModel) {
         this.id = n2NSettingModel.getId();
         this.name = n2NSettingModel.getName();
+        this.uuid = n2NSettingModel.getUuid();
         this.version = n2NSettingModel.getVersion();
         this.ipMode = n2NSettingModel.getIpMode();
         this.ip = n2NSettingModel.getIp();
@@ -73,6 +75,7 @@ public class N2NSettingInfo implements Parcelable {
     protected N2NSettingInfo(Parcel in) {
         id = in.readLong();
         name = in.readString();
+        uuid = in.readString();
         version = in.readInt();
         ipMode = in.readInt();
         ip = in.readString();
@@ -125,6 +128,14 @@ public class N2NSettingInfo implements Parcelable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public int getIpMode() {return ipMode;}
@@ -302,6 +313,7 @@ public class N2NSettingInfo implements Parcelable {
         return "N2NSettingInfo{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", uuid='" + uuid + '\'' +
                 ", version=" + version +
                 ", ipMode=" + ipMode +
                 ", ip='" + ip + '\'' +
@@ -342,6 +354,7 @@ public class N2NSettingInfo implements Parcelable {
             parcel.writeLong(id);
         }
         parcel.writeString(name);
+        parcel.writeString(uuid);
         parcel.writeInt(version);
         parcel.writeInt(ipMode);
         parcel.writeString(ip);

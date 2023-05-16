@@ -268,11 +268,6 @@ public class N2NService extends VpnService {
                 EventBus.getDefault().post(new SupernodeDisconnectEvent());
                 break;
             case DISCONNECT:
-                EventBus.getDefault().post(new StopEvent());
-                if (mLastStatus == SUPERNODE_DISCONNECT) {
-                    showOrRemoveNotification(CMD_REMOVE_NOTIFICATION);
-                }
-                break;
             case FAILED:
                 EventBus.getDefault().post(new StopEvent());
                 if (mLastStatus == SUPERNODE_DISCONNECT) {
