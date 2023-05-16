@@ -33,6 +33,13 @@ class VpnReceiverService : android.app.Service() {
             }
         }
 
+        fun sendBroadcastGetState() {
+            Intent().also { intent ->
+                intent.action = VpnEventReceiver.LOCAL_ACTION
+                intent.putExtra("action", VpnEventReceiver.ACTION_GET_STATE)
+                Hin2nApplication.instance.sendBroadcast(intent)
+            }
+        }
     }
 
     private val vpnEventReceiver = VpnEventReceiver { action, data ->

@@ -189,7 +189,8 @@ public class N2NService extends VpnService {
                     public void run() {
                         mLastStatus = mCurrentStatus = DISCONNECT;
                         showOrRemoveNotification(CMD_REMOVE_NOTIFICATION);
-
+                        //停止重新发送一次广播
+                        VpnReceiverService.Companion.sendBroadcastGetState();
                         try {
                             if (mParcelFileDescriptor != null) {
                                 mParcelFileDescriptor.close();
@@ -241,9 +242,13 @@ public class N2NService extends VpnService {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onLogChangeEvent(final LogChangeEvent event) {
+        EdgeStatus.RunningStatus last = mLastStatus;
         EdgeStatus status = getEdgeStatus();
         Log.d("status",status.runningStatus.name());
         reportEdgeStatus(status);
+        if (last != status.runningStatus) {
+            VpnReceiverService.Companion.sendBroadcastGetState();
+        }
     }
 
 
