@@ -36,6 +36,7 @@ import wang.switchy.hin2n.receiver.ObjectBox
 import wang.switchy.hin2n.receiver.VpnEventReceiver
 import wang.switchy.hin2n.service.N2NService
 import wang.switchy.hin2n.service.VpnReceiverService
+import wang.switchy.hin2n.service.VpnReceiverService.Companion.sendBroadcastGetState
 import wang.switchy.hin2n.storage.model.N2NSettingModel
 import wang.switchy.hin2n.tool.IOUtils
 import wang.switchy.hin2n.tool.N2nTools
@@ -333,26 +334,35 @@ class HomeViewModel : BaseViewModel<HomeViewAction>() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onStartEvent(event: StartEvent?) {
         refreshConnectState()
+        sendBroadcast()
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onStopEvent(event: StopEvent?) {
         refreshConnectState()
+        sendBroadcast()
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onErrorEvent(event: ErrorEvent?) {
         refreshConnectState()
+        sendBroadcast()
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onConnectingEvent(event: ConnectingEvent?) {
         refreshConnectState()
+        sendBroadcast()
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onSupernodeDisconnectEvent(event: SupernodeDisconnectEvent?) {
         refreshConnectState()
+        sendBroadcast()
+    }
+
+    private fun  sendBroadcast(){
+        //sendBroadcastGetState()
     }
 
 

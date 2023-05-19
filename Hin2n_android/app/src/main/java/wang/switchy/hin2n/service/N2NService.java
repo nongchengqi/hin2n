@@ -242,13 +242,8 @@ public class N2NService extends VpnService {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onLogChangeEvent(final LogChangeEvent event) {
-        EdgeStatus.RunningStatus last = mLastStatus;
         EdgeStatus status = getEdgeStatus();
-        Log.d("status",status.runningStatus.name());
         reportEdgeStatus(status);
-        if (last != status.runningStatus) {
-            VpnReceiverService.Companion.sendBroadcastGetState();
-        }
     }
 
 
@@ -281,6 +276,10 @@ public class N2NService extends VpnService {
                 break;
             default:
                 break;
+        }
+        Log.e("TTAG", "onLogChangeEvent: "+ status.runningStatus.name());
+        if (mLastStatus != status.runningStatus) {
+            VpnReceiverService.Companion.sendBroadcastGetState();
         }
     }
 
