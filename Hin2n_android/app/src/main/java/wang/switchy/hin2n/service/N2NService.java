@@ -277,10 +277,7 @@ public class N2NService extends VpnService {
             default:
                 break;
         }
-        Log.e("TTAG", "onLogChangeEvent: "+ status.runningStatus.name());
-        if (mLastStatus != status.runningStatus) {
-            VpnReceiverService.Companion.sendBroadcastGetState();
-        }
+        VpnReceiverService.Companion.sendBroadcastGetState();
     }
 
     public EdgeStatus.RunningStatus getCurrentStatus() {

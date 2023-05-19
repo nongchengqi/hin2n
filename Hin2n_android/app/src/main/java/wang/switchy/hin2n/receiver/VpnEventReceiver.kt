@@ -15,7 +15,6 @@ class VpnEventReceiver(private val onReceive: (String, String?) -> Unit) : Broad
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.e("TTAG", "onReceive")
         intent?.let {
             val action = it.getStringExtra("action")
             if (!action.isNullOrEmpty()) {

@@ -107,16 +107,13 @@ class VpnReceiverService : android.app.Service() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver()
-        Log.e("TTAG", "registerReceiver:onDestroy")
     }
 
     private fun registerReceiver() {
-        Log.e("TTAG", "registerReceiver:")
         try {
             registerReceiver(vpnEventReceiver, filter)
         } catch (e: Throwable) {
             e.printStackTrace()
-            Log.e("TTAG", "registerReceiver:Throwable")
         }
     }
 
